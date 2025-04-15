@@ -1,0 +1,97 @@
+.onboarding-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f3f6f8;
+    padding: 2rem;
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  
+  .onboarding-box {
+    background: #fff;
+    padding: 3rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.06);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .onboarding-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: #2e7d32;
+  }
+  
+  .onboarding-box .sub {
+    color: #555;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+  
+  .option-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .diet-button {
+    flex: 1;
+    min-width: 180px;
+    padding: 1rem;
+    font-size: 1rem;
+    background: #f0f0f0;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+  
+  .diet-button:hover {
+    background: #e0e0e0;
+  }
+  
+  .diet-button.selected {
+    background: #2e7d32;
+    color: #fff;
+    border-color: #2e7d32;
+  }
+  
+  .onboarding-footer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #999;
+  }
+  
+  .onboarding-footer a {
+    color: #999;
+    text-decoration: none;
+    margin: 0 0.3rem;
+  }
+  .onboarding-footer a:hover {
+    text-decoration: underline;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .option-group {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  

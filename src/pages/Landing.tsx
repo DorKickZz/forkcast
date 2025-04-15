@@ -1,38 +1,51 @@
 // 📁 src/pages/Landing.tsx
-import { Link } from "react-router-dom";
-import heroImage from "../assets/hero.png";
-import "./Landing.css";
+import './Landing.css';
+import { Link } from 'react-router-dom';
+import hero from '../assets/hero.png';
 
 export default function Landing() {
   return (
-    <div className="landing-wrapper">
-      <div className="hero-section">
-        <img src={heroImage} alt="Forkcast Hero" className="hero-image" />
+    <main className="landing-wrapper">
+      <section className="landing-hero">
+        <div className="hero-text">
+          <h1>
+            <span className="highlight">Plane smarter.</span><br />
+            Iss besser.
+          </h1>
+          <p>
+            Forkcast hilft dir, deine Woche stressfrei und lecker zu planen – ganz ohne Zettelwirtschaft.
+          </p>
+          <Link to="/login" className="cta-button">Jetzt starten</Link>
+        </div>
+        <div className="hero-image">
+          <img src={hero} alt="Hero Illustration" />
+        </div>
+      </section>
 
-        <h1 className="headline">Plan smarter. Iss besser.</h1>
-        <p className="subline">
-          Forkcast hilft dir, deine Woche stressfrei und lecker zu planen.
-        </p>
-        <Link to="/setup" className="start-button">Jetzt starten</Link>
-      </div>
+      <section className="features">
+        <div className="feature-card">
+          <span>🍽️</span>
+          <h3>Rezepte verwalten</h3>
+          <p>Speichere und kategorisiere deine Lieblingsrezepte in Sekunden.</p>
+        </div>
+        <div className="feature-card">
+          <span>📅</span>
+          <h3>Wochenplan generieren</h3>
+          <p>Plane deine Woche automatisch – vegetarisch, vegan oder gemischt.</p>
+        </div>
+        <div className="feature-card">
+          <span>⚡</span>
+          <h3>Einfach & schnell</h3>
+          <p>Minimalistisches Design, maximale Effizienz für deinen Alltag.</p>
+        </div>
+      </section>
 
-      <div className="feature-grid">
-        <div className="feature-card">
-          <span className="emoji">🧑‍🍳</span>
-          <h3>Einfach</h3>
-          <p>Rezepte mit nur wenigen Klicks speichern & auswählen.</p>
+      <footer className="landing-footer">
+        <p>© 2025 Forkcast</p>
+        <div>
+          <Link to="/impressum">Impressum</Link> | <Link to="/datenschutz">Datenschutz</Link>
         </div>
-        <div className="feature-card">
-          <span className="emoji">📅</span>
-          <h3>Automatisch</h3>
-          <p>Plane deine Woche nach deinem Stil & deiner Ernährung.</p>
-        </div>
-        <div className="feature-card">
-          <span className="emoji">🧠</span>
-          <h3>Smart</h3>
-          <p>Forkcast merkt sich deine Vorlieben – ganz automatisch.</p>
-        </div>
-      </div>
-    </div>
+      </footer>
+    </main>
   );
 }
