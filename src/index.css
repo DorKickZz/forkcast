@@ -1,146 +1,83 @@
-/* 📁 src/index.css */
 
-:root {
-  font-family: 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #213547;
-  background-color: #ffffff;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
+/* --- Globales Layout --- */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  background-color: #ffffff;
-  color: #213547;
 }
 
-/* Links */
-a {
-  font-weight: 500;
-  color: #2e7d32;
-  text-decoration: none;
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fdfdfd;
+  color: #333;
+  display: flex;
+  justify-content: center; /* Zentriert den Inhalt horizontal */
+  align-items: center; /* Zentriert den Inhalt vertikal */
+  min-height: 100vh;
 }
 
-a:hover {
-  text-decoration: underline;
-  color: #1b5e20;
-}
-
-/* Buttons */
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #4caf50;
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #388e3c;
-}
-
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-/* --- Landing Page Style --- */
-
-/* Container für die Landing Page */
-.landing-container {
+/* --- Container für den Inhalt --- */
+.layout-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  min-height: 100vh;
-  text-align: center;
-  background-color: #ffffff;
-  width: 100%; /* Verhindert, dass der Container eine max-width hat */
-  box-sizing: border-box;
-}
-
-.landing-container h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #2e7d32; /* Satteres Grün */
-}
-
-.landing-container p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-.landing-button {
-  background-color: #4caf50;
-  padding: 0.8rem 2rem;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.landing-button:hover {
-  background-color: #388e3c;
-}
-
-/* Flexbox für die drei Feature-Boxen */
-.features-container {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 3rem;
+  align-items: center; /* Zentriert den Inhalt auch im flex container */
   width: 100%;
+  max-width: 1200px; /* Limitierte maximale Breite */
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.feature-box {
-  background-color: #f6f7f8;
-  padding: 1.5rem;
-  border-radius: 8px;
-  width: 200px;
+/* --- Anpassung der Landing Page Texts und Button --- */
+.landing-container {
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.feature-box h3 {
-  font-size: 1.25rem;
+h1 {
+  font-size: 2.5rem;
   margin-bottom: 1rem;
   color: #2e7d32;
 }
 
-.feature-box p {
-  font-size: 1rem;
-  color: #4e5d6c;
+p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
-  .landing-container {
-    padding: 2rem 1rem;
+button {
+  padding: 1rem 2rem;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #237f28;
+}
+
+/* --- Responsive Design --- */
+@media screen and (max-width: 768px) {
+  .layout-wrapper {
+    padding: 1rem;
+    width: 100%;
   }
 
-  .features-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
+  h1 {
+    font-size: 2rem;
   }
 
-  .feature-box {
-    width: 80%;
+  p {
+    font-size: 1rem;
+  }
+
+  button {
+    width: 100%;
   }
 }
