@@ -48,4 +48,15 @@
     text-align: center;
     margin-top: 1rem;
   }
+
+  /* Landing Page in voller Breite darstellen */
+.landing-fullscreen {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 3rem;
+  box-shadow: none;
+  background: none;
+  border-radius: 0;
+}
+
   
