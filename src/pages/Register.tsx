@@ -33,7 +33,8 @@ export default function Register() {
       setError(error.message);
     } else {
       setError("");
-      navigate("/onboarding");
+      alert("Registrierung erfolgreich! Du kannst dich jetzt einloggen.");
+      navigate("/login");
     }
   };
 
