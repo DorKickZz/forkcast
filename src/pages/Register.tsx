@@ -1,29 +1,29 @@
-// 📁 src/pages/Login.tsx
+// 📁 src/pages/Register.tsx
 
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
-      alert('Login fehlgeschlagen');
+      alert('Registrierung fehlgeschlagen');
     } else {
-      navigate('/setup');
+      navigate('/onboarding');
     }
   };
 
   return (
     <div className="auth-box">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <h2>Registrierung</h2>
+      <form onSubmit={handleRegister}>
         <input
           type="email"
           placeholder="E-Mail"
@@ -38,9 +38,9 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Login</button>
+        <button type="submit">Registrieren</button>
       </form>
-      <p>Kein Account? <a href="/register">Jetzt registrieren</a></p>
+      <p>Schon registriert? <a href="/login">Zum Login</a></p>
     </div>
   );
 }
