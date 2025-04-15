@@ -67,6 +67,8 @@ button:focus-visible {
   min-height: 100vh;
   text-align: center;
   background-color: #ffffff;
+  width: 100%; /* Verhindert, dass der Container eine max-width hat */
+  box-sizing: border-box;
 }
 
 .landing-container h1 {
