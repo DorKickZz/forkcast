@@ -1,65 +1,68 @@
 // 📁 src/App.tsx
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
-import Layout from './components/Layout';
-import AuthLayout from './pages/AuthLayout';
-import ProtectedRoute from './components/ProtectedRoute';
-
 import Landing from './pages/Landing';
-import Login from './pages/Login';
 import Register from './pages/Register';
-import Onboarding from './pages/Onboarding';
-
+import Login from './pages/Login';
 import Setup from './pages/Setup';
 import PlanSetup from './pages/PlanSetup';
 import Plan from './pages/Plan';
 import Impressum from './pages/Impressum';
 import Datenschutz from './pages/Datenschutz';
+import Layout from './components/Layout';
+import './index.css';
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* Landing Page ohne Layout */}
+        <Route path="/" element={<Landing />} />
 
-        {/* Seiten ohne Sidebar */}
-        <Route element={<AuthLayout />}>
-          <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-        </Route>
+        {/* Auth Pages */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* Seiten mit Sidebar + Schutz */}
-        <Route element={<Layout />}>
-          <Route
-            path="/setup"
-            element={
-              <ProtectedRoute>
-                <Setup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/plan-setup"
-            element={
-              <ProtectedRoute>
-                <PlanSetup />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/plan"
-            element={
-              <ProtectedRoute>
-                <Plan />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/impressum" element={<Impressum />} />
-          <Route path="/datenschutz" element={<Datenschutz />} />
-        </Route>
-
+        {/* Seiten mit Sidebar & Footer */}
+        <Route
+          path="/setup"
+          element={
+            <Layout>
+              <Setup />
+            </Layout>
+          }
+        />
+        <Route
+          path="/plan-setup"
+          element={
+            <Layout>
+              <PlanSetup />
+            </Layout>
+          }
+        />
+        <Route
+          path="/plan"
+          element={
+            <Layout>
+              <Plan />
+            </Layout>
+          }
+        />
+        <Route
+          path="/impressum"
+          element={
+            <Layout>
+              <Impressum />
+            </Layout>
+          }
+        />
+        <Route
+          path="/datenschutz"
+          element={
+            <Layout>
+              <Datenschutz />
+            </Layout>
+          }
+        />
       </Routes>
     </Router>
   );

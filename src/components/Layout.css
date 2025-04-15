@@ -1,19 +1,10 @@
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body, html {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #fdfdfd;
-  color: #333;
-}
+/* 📁 src/components/Layout.css */
 
 .layout-wrapper {
-  display: flex;
+  display: grid;
+  grid-template-columns: 240px 1fr;
   min-height: 100vh;
+  background-color: #fdfdfd;
 }
 
 .sidebar {
@@ -24,67 +15,30 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: fixed;
-  left: 0;
+  position: sticky;
   top: 0;
-  bottom: 0;
-}
-
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.logo-container img {
-  width: 250px;
-}
-
-.nav-links {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  width: 100%;
-}
-
-.nav-item {
-  text-decoration: none;
-  color: #4e5d6c;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  transition: background-color 0.2s ease;
-}
-
-.nav-item:hover {
-  background-color: #e4f2eb;
-  color: #2e7d32;
-  font-weight: 600;
+  height: 100vh;
 }
 
 .main-content {
-  margin-left: 240px;
-  padding: 3rem 2rem;
-  width: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  min-height: 100vh;
 }
-.app-footer {
-  margin-top: 4rem;
+
+.page-content {
+  flex: 1;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Optional: Footer-Zentrierung */
+footer {
   text-align: center;
+  padding: 2rem 0 1rem;
   font-size: 0.9rem;
-  color: #888;
-  padding-top: 2rem;
-  border-top: 1px solid #eee;
-}
-
-.app-footer a {
-  color: #888;
-  text-decoration: underline;
-}
-
-.app-footer a:hover {
-  color: #2e7d32;
+  color: #777;
 }
