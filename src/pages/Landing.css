@@ -1,0 +1,84 @@
+/* 📁 src/pages/Landing.css */
+
+.landing-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px); /* oder was auch immer deine Sidebarhöhe ist */
+  padding: 4rem 2rem;
+}
+
+
+.hero-image {
+  max-width: 400px;
+  width: 100%;
+  height: auto;
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.headline {
+  font-size: 2.5rem;
+  color: #2f7d32;
+  margin-bottom: 0.5rem;
+}
+
+.subline {
+  font-size: 1.1rem;
+  color: #444;
+  margin-bottom: 2rem;
+}
+
+.start-button {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.start-button:hover {
+  background-color: #388e3c;
+}
+
+.feature-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.feature-card {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 240px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card h3 {
+  margin: 0.5rem 0;
+  color: #2f7d32;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.emoji {
+  font-size: 2rem;
+}

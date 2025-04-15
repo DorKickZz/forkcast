@@ -1,0 +1,86 @@
+/* 📁 src/components/Layout.css */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fdfdfd;
+  color: #333;
+}
+
+/* --- Layoutstruktur --- */
+
+.layout-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  background-color: #f6f7f8;
+  border-right: 1px solid #ddd;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+
+
+.logo-container img {
+  width: 250px;       /* richtig schön groß */
+  }
+
+
+
+.logo-container h1 {
+  font-size: 1.75rem; /* vorher: 1.5rem */
+  color: #2e7d32;     /* satteres Grün */
+  font-weight: 700;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #4e5d6c;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #e4f2eb;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* --- Hauptinhalt --- */
+
+.main-content {
+  margin-left: 240px;
+  padding: 3rem 2rem;
+  width: 100%;
+}
