@@ -1,101 +1,139 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
-import './Plan.css';
+// 📁 src/pages/Plan.tsx
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
+import "./Plan.css";
 
-type Recipe = {
-  id: string;
-  title: string;
-  url: string;
-  meal_types: string[];
-  is_vegetarian: boolean;
-};
+const daysOfWeek = [
+  "Montag",
+  "Dienstag",
+  "Mittwoch",
+  "Donnerstag",
+  "Freitag",
+  "Samstag",
+  "Sonntag",
+];
 
-type Plan = {
-  [day: string]: {
-    [meal: string]: Recipe | null;
-  };
-};
+const mealTypes = ["Frühstück", "Mittag", "Abend"];
 
 export default function Plan() {
-  const [plan, setPlan] = useState<Plan>({});
-  const [loading, setLoading] = useState(true);
-  const [days, setDays] = useState<string[]>([]);
-  const [meals, setMeals] = useState<string[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [selectedMeals, setSelectedMeals] = useState<string[]>([]);
+  const [onlyVegetarian, setOnlyVegetarian] = useState(false);
+  const [plan, setPlan] = useState<{ [day: string]: { [meal: string]: any } }>({});
 
   useEffect(() => {
-    const storedDays = localStorage.getItem('forkcast_days');
-    const storedMeals = localStorage.getItem('forkcast_meals');
-    setDays(storedDays ? JSON.parse(storedDays) : []);
-    setMeals(storedMeals ? JSON.parse(storedMeals) : []);
+    fetchRecipes();
   }, []);
 
-  useEffect(() => {
-    if (days.length > 0 && meals.length > 0) {
-      generatePlan();
-    }
-  }, [days, meals]);
+  const fetchRecipes = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-  const generatePlan = async () => {
-    setLoading(true);
+    const { data } = await supabase
+      .from("recipes")
+      .select("*")
+      .eq("user_id", user.id);
 
-    const { data: recipes, error } = await supabase.from('recipes').select('*');
-    if (error) {
-      alert('Fehler beim Laden der Rezepte');
-      console.error(error);
-      return;
-    }
+    if (data) setRecipes(data);
+  };
 
-    const newPlan: Plan = {};
-    for (const day of days) {
+  const toggleSelection = (item: string, list: string[], setList: (val: string[]) => void) => {
+    setList(list.includes(item) ? list.filter((v) => v !== item) : [...list, item]);
+  };
+
+  const generatePlan = () => {
+    const filtered = recipes.filter((r) =>
+      (!onlyVegetarian || r.is_vegetarian)
+    );
+
+    const newPlan: { [day: string]: { [meal: string]: any } } = {};
+
+    selectedDays.forEach((day) => {
       newPlan[day] = {};
-      for (const meal of meals) {
-        const matching = recipes?.filter((r) => r.meal_types?.includes(meal)) || [];
-        const random = matching[Math.floor(Math.random() * matching.length)] || null;
-        newPlan[day][meal] = random;
-      }
-    }
+      selectedMeals.forEach((meal) => {
+        const options = filtered.filter((r) => r.meal_types?.includes(meal));
+        const recipe = options[Math.floor(Math.random() * options.length)];
+        newPlan[day][meal] = recipe || null;
+      });
+    });
 
     setPlan(newPlan);
-    setLoading(false);
   };
 
   return (
     <div className="plan-page">
-      <h2>Dein Wochenplan</h2>
+      <h2>Wochenplan erstellen</h2>
 
-      {loading ? (
-        <p>Wird geladen...</p>
-      ) : (
-        <>
-          <button onClick={generatePlan}>Plan neu generieren</button>
-          <div className="plan-table">
-            {days.map((day) => (
+      <section className="plan-form">
+        <label>Wochentage:</label>
+        <div className="checkbox-grid">
+          {daysOfWeek.map((day) => (
+            <label key={day}>
+              <input
+                type="checkbox"
+                checked={selectedDays.includes(day)}
+                onChange={() => toggleSelection(day, selectedDays, setSelectedDays)}
+              />
+              {day}
+            </label>
+          ))}
+        </div>
+
+        <label>Mahlzeiten:</label>
+        <div className="checkbox-grid">
+          {mealTypes.map((meal) => (
+            <label key={meal}>
+              <input
+                type="checkbox"
+                checked={selectedMeals.includes(meal)}
+                onChange={() => toggleSelection(meal, selectedMeals, setSelectedMeals)}
+              />
+              {meal}
+            </label>
+          ))}
+        </div>
+
+        <label>
+          <input
+            type="checkbox"
+            checked={onlyVegetarian}
+            onChange={() => setOnlyVegetarian(!onlyVegetarian)}
+          />
+          Nur vegetarische Rezepte
+        </label>
+
+        <button onClick={generatePlan} disabled={selectedDays.length === 0 || selectedMeals.length === 0}>
+          Plan generieren
+        </button>
+      </section>
+
+      {Object.keys(plan).length > 0 && (
+        <section className="plan-result">
+          <h3>Dein Wochenplan</h3>
+          <div className="plan-grid">
+            {selectedDays.map((day) => (
               <div key={day} className="plan-day">
-                <h3>{day}</h3>
-                <ul>
-                  {meals.map((meal) => {
-                    const recipe = plan[day]?.[meal];
-                    return (
-                      <li key={meal}>
-                        <strong>{meal}:</strong>{' '}
-                        {recipe ? (
-                          <>
-                            <a href={recipe.url} target="_blank" rel="noreferrer">
-                              {recipe.title}
-                            </a>{' '}
-                            <em>({recipe.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'})</em>
-                          </>
-                        ) : (
-                          <em>Keine passende Idee gefunden</em>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <h4>{day}</h4>
+                {selectedMeals.map((meal) => {
+                  const recipe = plan[day]?.[meal];
+                  return (
+                    <div key={meal} className="plan-meal">
+                      <strong>{meal}:</strong>{" "}
+                      {recipe ? (
+                        <a href={recipe.url} target="_blank" rel="noreferrer">
+                          {recipe.title}
+                        </a>
+                      ) : (
+                        <em>Kein passendes Rezept</em>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
-        </>
+        </section>
       )}
     </div>
   );

@@ -1,41 +1,37 @@
 .plan-page {
-  max-width: 800px;
-  margin: 2rem auto;
+  max-width: 900px;
+  margin: 0 auto;
   padding: 2rem;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-.plan-page h2 {
-  text-align: center;
+.plan-form {
   margin-bottom: 2rem;
 }
 
-.plan-table {
+.checkbox-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-}
-
-.plan-day {
-  flex: 1 1 250px;
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.plan-day h3 {
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.plan-day ul {
-  list-style: none;
-  padding-left: 0;
+.plan-result {
+  margin-top: 2rem;
 }
 
-.plan-day li {
-  margin-bottom: 0.75rem;
+.plan-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.plan-day {
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.plan-meal {
+  margin-top: 0.5rem;
 }

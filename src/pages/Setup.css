@@ -1,64 +1,31 @@
-.setup-wrapper {
-  display: flex;
-  justify-content: center;
-  padding-top: 2rem;
-  padding-bottom: 4rem;
-}
-
 .setup-container {
-  width: 100%;
   max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
 }
 
-.toggle-buttons {
+.link-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.link-input input {
+  flex: 1;
+}
+
+.checkbox-group {
   display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.toggle-buttons button {
-  flex: 1;
-  padding: 0.6rem 1rem;
-  border: none;
-  background: #ddd;
-  color: #333;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.toggle-buttons .active {
-  background-color: #4caf50;
-  color: white;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-}
-
-input[type="text"],
-input[type="url"] {
-  padding: 0.5rem;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-button.secondary {
-  background: #f1f1f1;
-  color: #333;
-  font-size: 0.9rem;
-  padding: 0.4rem 0.8rem;
-}
-
-.checkboxes {
-  display: flex;
-  gap: 1rem;
-}
-
 .recipe-list {
-  margin-top: 2rem;
-  padding-left: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.recipe-list li {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
 }
