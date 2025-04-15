@@ -55,3 +55,90 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+/* --- Landing Page Style --- */
+
+/* Container für die Landing Page */
+.landing-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  min-height: 100vh;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.landing-container h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2e7d32; /* Satteres Grün */
+}
+
+.landing-container p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.landing-button {
+  background-color: #4caf50;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.landing-button:hover {
+  background-color: #388e3c;
+}
+
+/* Flexbox für die drei Feature-Boxen */
+.features-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  width: 100%;
+}
+
+.feature-box {
+  background-color: #f6f7f8;
+  padding: 1.5rem;
+  border-radius: 8px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-box h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #2e7d32;
+}
+
+.feature-box p {
+  font-size: 1rem;
+  color: #4e5d6c;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .landing-container {
+    padding: 2rem 1rem;
+  }
+
+  .features-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .feature-box {
+    width: 80%;
+  }
+}
