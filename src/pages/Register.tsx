@@ -1,46 +1,80 @@
 // 📁 src/pages/Register.tsx
-
-import { useState } from 'react';
-import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
+import "./Register.css";
 
 export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.auth.signUp({ email, password });
+
+    if (!email.includes("@")) {
+      setError("Bitte gib eine gültige E-Mail-Adresse ein.");
+      return;
+    }
+
+    if (password !== repeatPassword) {
+      setError("Die Passwörter stimmen nicht überein.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
     if (error) {
-      alert('Registrierung fehlgeschlagen');
+      setError(error.message);
     } else {
-      navigate('/onboarding');
+      setError("");
+      navigate("/onboarding");
     }
   };
 
   return (
-    <div className="auth-box">
-      <h2>Registrierung</h2>
-      <form onSubmit={handleRegister}>
-        <input
-          type="email"
-          placeholder="E-Mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Passwort"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit">Registrieren</button>
-      </form>
-      <p>Schon registriert? <a href="/login">Zum Login</a></p>
+    <div className="register-wrapper">
+      <div className="register-box">
+        <h2>Konto erstellen</h2>
+        <form onSubmit={handleRegister}>
+          <label>E-Mail</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+
+          <label>Passwort</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+
+          <label>Passwort wiederholen</label>
+          <input
+            type="password"
+            value={repeatPassword}
+            onChange={(e) => setRepeatPassword(e.target.value)}
+            required
+          />
+
+          {error && <p className="error">{error}</p>}
+
+          <button type="submit">Registrieren</button>
+        </form>
+
+        <p className="switch">
+          Bereits ein Konto? <a href="/login">Hier einloggen</a>
+        </p>
+      </div>
     </div>
   );
 }
