@@ -1,29 +1,15 @@
+// 📄 src/pages/Setup.tsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import './Setup.css';
 
 export default function Setup() {
-  const [mode, setMode] = useState<'link' | 'manual'>('link');
+  const [isCustom, setIsCustom] = useState(false);
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
   const [isVegetarian, setIsVegetarian] = useState(false);
   const [mealTypes, setMealTypes] = useState<string[]>([]);
   const [recipes, setRecipes] = useState<any[]>([]);
-
-  useEffect(() => {
-    const diet = localStorage.getItem('forkcast_diet');
-    setIsVegetarian(diet === 'vegetarisch');
-    fetchRecipes();
-  }, []);
-
-  const fetchRecipes = async () => {
-    const { data, error } = await supabase
-      .from('recipes')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error && data) setRecipes(data);
-  };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -32,156 +18,189 @@ export default function Setup() {
     );
   };
 
-  const handleAutoFill = async () => {
-    if (!url) return alert('Bitte gib einen Link ein');
-
+  const fetchTitleFromUrl = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/title?url=${encodeURIComponent(url)}`);
+      const response = await fetch(
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
+      );
       const data = await response.json();
-
-      if (data.title) {
-        setTitle(data.title);
+      const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+      const pageTitle = doc.querySelector('title')?.textContent;
+      if (pageTitle) {
+        setTitle(pageTitle);
       } else {
-        alert('Kein Titel gefunden.');
+        alert('Kein Titel gefunden. Bitte manuell eingeben.');
       }
-    } catch (error) {
-      alert('Fehler beim Laden des Titels.');
-      console.error(error);
+    } catch {
+      alert('Fehler beim Laden des Titels');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!title || mealTypes.length === 0) {
-      alert('Bitte gib einen Titel und mindestens eine Mahlzeit an.');
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (userError || !user) {
+      alert('Fehler beim Abrufen des Benutzers');
       return;
     }
 
     const { error } = await supabase.from('recipes').insert({
       title,
-      url: mode === 'link' ? url : '',
+      url: isCustom ? '' : url,
       is_vegetarian: isVegetarian,
       meal_types: mealTypes,
+      user_id: user.id,
     });
 
     if (error) {
-      alert('Fehler beim Speichern.');
-      console.error(error);
-      return;
+      alert('Fehler beim Speichern des Rezepts');
+    } else {
+      alert('Rezept gespeichert!');
+      setTitle('');
+      setUrl('');
+      setIsVegetarian(false);
+      setMealTypes([]);
+      setIsCustom(false);
+      fetchRecipes();
     }
+  };
 
-    // Reset
-    setTitle('');
-    setUrl('');
-    setMealTypes([]);
-    setIsVegetarian(localStorage.getItem('forkcast_diet') === 'vegetarisch');
-    fetchRecipes();
+  const fetchRecipes = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      setRecipes(data);
+    }
   };
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('recipes').delete().eq('id', id);
     if (!error) {
       setRecipes((prev) => prev.filter((r) => r.id !== id));
+    } else {
+      alert('Fehler beim Löschen');
     }
   };
 
+  useEffect(() => {
+    fetchRecipes();
+  }, []);
+
   return (
-    <div className="setup-container">
-      <h2>Rezept hinzufügen</h2>
+    <div className="setup-wrapper">
+      <div className="setup-container">
+        <h2>Rezept hinzufügen</h2>
 
-      <div className="toggle-mode">
-        <button className={mode === 'link' ? 'active' : ''} onClick={() => setMode('link')}>
-          Rezept-Link
-        </button>
-        <button className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>
-          Eigenes Rezept
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        {mode === 'link' && (
-          <>
-            <label>Rezept-Link:</label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
-              required
-            />
-            <button type="button" onClick={handleAutoFill}>
-              Titel automatisch laden
-            </button>
-            <label>Titel:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Titel"
-              required
-            />
-          </>
-        )}
-
-        {mode === 'manual' && (
-          <>
-            <label>Titel:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="z. B. Veggie-Bowl"
-              required
-            />
-          </>
-        )}
-
-        <label>Mahlzeiten-Typ(en):</label>
-        <div className="checkbox-group">
-          {['Frühstück', 'Mittag', 'Abend'].map((meal) => (
-            <label key={meal}>
-              <input
-                type="checkbox"
-                value={meal}
-                checked={mealTypes.includes(meal)}
-                onChange={handleCheckboxChange}
-              />
-              {meal}
-            </label>
-          ))}
+        <div className="toggle-buttons">
+          <button
+            className={!isCustom ? 'active' : ''}
+            onClick={() => setIsCustom(false)}
+          >
+            Rezept-Link
+          </button>
+          <button
+            className={isCustom ? 'active' : ''}
+            onClick={() => setIsCustom(true)}
+          >
+            Eigenes Rezept
+          </button>
         </div>
 
-        <label>
+        <form onSubmit={handleSubmit}>
+          {!isCustom && (
+            <>
+              <label>Rezept-Link:</label>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={fetchTitleFromUrl}
+                className="secondary"
+              >
+                Titel automatisch laden
+              </button>
+            </>
+          )}
+
+          <label>Titel:</label>
           <input
-            type="checkbox"
-            checked={isVegetarian}
-            onChange={(e) => setIsVegetarian(e.target.checked)}
-          />{' '}
-          Vegetarisch
-        </label>
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
 
-        <button type="submit">Rezept speichern</button>
-      </form>
+          <label>Mahlzeiten-Typ(en):</label>
+          <div className="checkboxes">
+            {['Frühstück', 'Mittag', 'Abend'].map((meal) => (
+              <label key={meal}>
+                <input
+                  type="checkbox"
+                  value={meal}
+                  checked={mealTypes.includes(meal)}
+                  onChange={handleCheckboxChange}
+                />
+                {meal}
+              </label>
+            ))}
+          </div>
 
-      <h3>Deine Rezepte</h3>
-      <ul className="recipe-list">
-        {recipes.map((r) => (
-          <li key={r.id}>
-            <strong>{r.title}</strong><br />
-            {r.url && (
-              <a href={r.url} target="_blank" rel="noreferrer">
-                Link
-              </a>
-            )}
-            <br />
-            <em>
-              {r.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'} – {r.meal_types?.join(', ')}
-            </em><br />
-            <button onClick={() => handleDelete(r.id)}>Löschen</button>
-          </li>
-        ))}
-      </ul>
+          <label>
+            <input
+              type="checkbox"
+              checked={isVegetarian}
+              onChange={(e) => setIsVegetarian(e.target.checked)}
+            />{' '}
+            Vegetarisch
+          </label>
+
+          <button type="submit">Rezept speichern</button>
+        </form>
+
+        <h3>Deine Rezepte</h3>
+        <ul className="recipe-list">
+          {recipes.map((recipe) => (
+            <li key={recipe.id}>
+              <strong>{recipe.title}</strong>{' '}
+              {recipe.url && (
+                <>
+                  –{' '}
+                  <a
+                    href={recipe.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Link
+                  </a>
+                </>
+              )}
+              <br />
+              <em>
+                {recipe.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'} –{' '}
+                {recipe.meal_types?.join(', ')}
+              </em>
+              <br />
+              <button onClick={() => handleDelete(recipe.id)}>Löschen</button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
