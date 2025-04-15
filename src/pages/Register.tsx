@@ -9,6 +9,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [isVegetarian, setIsVegetarian] = useState(true); // Default auf vegetarisch
   const [error, setError] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -24,18 +25,29 @@ export default function Register() {
       return;
     }
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
     });
 
-    if (error) {
-      setError(error.message);
-    } else {
-      setError("");
-      alert("Registrierung erfolgreich! Du kannst dich jetzt einloggen.");
-      navigate("/login");
+    if (signUpError || !data.user) {
+      setError(signUpError?.message || "Unbekannter Fehler");
+      return;
     }
+
+    // Profil erweitern
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: data.user.id,
+      is_vegetarian: isVegetarian,
+    });
+
+    if (profileError) {
+      setError("Fehler beim Speichern des Profils.");
+      return;
+    }
+
+    alert("Registrierung erfolgreich – du kannst dich jetzt einloggen.");
+    navigate("/login");
   };
 
   return (
@@ -66,6 +78,28 @@ export default function Register() {
             onChange={(e) => setRepeatPassword(e.target.value)}
             required
           />
+
+          <div className="veg-options">
+            <label>Ernährungsstil:</label>
+            <label>
+              <input
+                type="radio"
+                name="veg"
+                checked={isVegetarian}
+                onChange={() => setIsVegetarian(true)}
+              />
+              Vegetarisch/Vegan
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="veg"
+                checked={!isVegetarian}
+                onChange={() => setIsVegetarian(false)}
+              />
+              Allesesser
+            </label>
+          </div>
 
           {error && <p className="error">{error}</p>}
 
