@@ -17,65 +17,92 @@ export default function Setup() {
   }, []);
 
   const fetchRecipes = async () => {
-    const { data, error } = await supabase.from('recipes').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
     if (!error && data) setRecipes(data);
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setMealTypes((prev) => prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]);
+    setMealTypes((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
+    );
   };
 
   const handleAutoFill = async () => {
-    if (!url) return alert('Bitte zuerst einen Link eingeben');
+    if (!url) return alert('Bitte gib einen Link ein');
+
     try {
-      const response = await fetch(`/api/title?url=${encodeURIComponent(url)}`);
+      const response = await fetch(`http://localhost:3001/title?url=${encodeURIComponent(url)}`);
       const data = await response.json();
-      if (data.title) setTitle(data.title);
-      else alert('Kein Titel gefunden');
-    } catch {
-      alert('Fehler beim Abrufen');
+
+      if (data.title) {
+        setTitle(data.title);
+      } else {
+        alert('Kein Titel gefunden.');
+      }
+    } catch (error) {
+      alert('Fehler beim Laden des Titels.');
+      console.error(error);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const finalTitle = title || 'Unbenanntes Rezept';
+    if (!title || mealTypes.length === 0) {
+      alert('Bitte gib einen Titel und mindestens eine Mahlzeit an.');
+      return;
+    }
 
     const { error } = await supabase.from('recipes').insert({
-      title: finalTitle,
+      title,
       url: mode === 'link' ? url : '',
       is_vegetarian: isVegetarian,
       meal_types: mealTypes,
     });
 
-    if (error) return alert('Fehler beim Speichern des Rezepts');
+    if (error) {
+      alert('Fehler beim Speichern.');
+      console.error(error);
+      return;
+    }
 
+    // Reset
     setTitle('');
     setUrl('');
-    setIsVegetarian(localStorage.getItem('forkcast_diet') === 'vegetarisch');
     setMealTypes([]);
+    setIsVegetarian(localStorage.getItem('forkcast_diet') === 'vegetarisch');
     fetchRecipes();
   };
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from('recipes').delete().eq('id', id);
-    if (!error) setRecipes((prev) => prev.filter((r) => r.id !== id));
+    if (!error) {
+      setRecipes((prev) => prev.filter((r) => r.id !== id));
+    }
   };
 
   return (
     <div className="setup-container">
       <h2>Rezept hinzufügen</h2>
+
       <div className="toggle-mode">
-        <button className={mode === 'link' ? 'active' : ''} onClick={() => setMode('link')}>Per Link</button>
-        <button className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>Eigenes Rezept</button>
+        <button className={mode === 'link' ? 'active' : ''} onClick={() => setMode('link')}>
+          Rezept-Link
+        </button>
+        <button className={mode === 'manual' ? 'active' : ''} onClick={() => setMode('manual')}>
+          Eigenes Rezept
+        </button>
       </div>
 
       <form onSubmit={handleSubmit}>
         {mode === 'link' && (
           <>
-            <label>Link zum Rezept:</label>
+            <label>Rezept-Link:</label>
             <input
               type="url"
               value={url}
@@ -83,23 +110,28 @@ export default function Setup() {
               placeholder="https://..."
               required
             />
-            <button type="button" onClick={handleAutoFill}>Titel automatisch aus Link holen</button>
-
+            <button type="button" onClick={handleAutoFill}>
+              Titel automatisch laden
+            </button>
             <label>Titel:</label>
             <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="z. B. Spaghetti Bolognese"
+              placeholder="Titel"
+              required
             />
           </>
         )}
 
         {mode === 'manual' && (
           <>
-            <label>Titel des Rezepts:</label>
+            <label>Titel:</label>
             <input
+              type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="z. B. Veggie-Bowl"
               required
             />
           </>
@@ -107,15 +139,15 @@ export default function Setup() {
 
         <label>Mahlzeiten-Typ(en):</label>
         <div className="checkbox-group">
-          {['Frühstück', 'Mittag', 'Abend'].map((type) => (
-            <label key={type}>
+          {['Frühstück', 'Mittag', 'Abend'].map((meal) => (
+            <label key={meal}>
               <input
                 type="checkbox"
-                value={type}
-                checked={mealTypes.includes(type)}
+                value={meal}
+                checked={mealTypes.includes(meal)}
                 onChange={handleCheckboxChange}
               />
-              {type}
+              {meal}
             </label>
           ))}
         </div>
@@ -132,13 +164,20 @@ export default function Setup() {
         <button type="submit">Rezept speichern</button>
       </form>
 
-      <h3>Deine Rezeptbibliothek</h3>
+      <h3>Deine Rezepte</h3>
       <ul className="recipe-list">
         {recipes.map((r) => (
           <li key={r.id}>
             <strong>{r.title}</strong><br />
-            {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer">Zum Rezept</a>}<br />
-            <em>{r.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'} – {r.meal_types?.join(', ')}</em><br />
+            {r.url && (
+              <a href={r.url} target="_blank" rel="noreferrer">
+                Link
+              </a>
+            )}
+            <br />
+            <em>
+              {r.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'} – {r.meal_types?.join(', ')}
+            </em><br />
             <button onClick={() => handleDelete(r.id)}>Löschen</button>
           </li>
         ))}

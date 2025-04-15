@@ -71,3 +71,20 @@ body, html {
   display: flex;
   justify-content: center;
 }
+.app-footer {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #888;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.app-footer a {
+  color: #888;
+  text-decoration: underline;
+}
+
+.app-footer a:hover {
+  color: #2e7d32;
+}

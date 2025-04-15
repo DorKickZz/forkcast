@@ -1,122 +1,102 @@
-// 📁 src/pages/Plan.tsx
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import './Plan.css';
 
-export default function Plan() {
-  const [weeklyPlan, setWeeklyPlan] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+type Recipe = {
+  id: string;
+  title: string;
+  url: string;
+  meal_types: string[];
+  is_vegetarian: boolean;
+};
 
-  const loadExistingPlan = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('mealplans')
-      .select('*, recipes(*)')
-      .eq('user_id', user.id);
-
-    if (!error && data.length > 0) {
-      setWeeklyPlan(data.map((entry) => ({
-        ...entry,
-        recipes: entry.recipes,
-      })));
-    }
+type Plan = {
+  [day: string]: {
+    [meal: string]: Recipe | null;
   };
+};
+
+export default function Plan() {
+  const [plan, setPlan] = useState<Plan>({});
+  const [loading, setLoading] = useState(true);
+  const [days, setDays] = useState<string[]>([]);
+  const [meals, setMeals] = useState<string[]>([]);
+
+  useEffect(() => {
+    const storedDays = localStorage.getItem('forkcast_days');
+    const storedMeals = localStorage.getItem('forkcast_meals');
+    setDays(storedDays ? JSON.parse(storedDays) : []);
+    setMeals(storedMeals ? JSON.parse(storedMeals) : []);
+  }, []);
+
+  useEffect(() => {
+    if (days.length > 0 && meals.length > 0) {
+      generatePlan();
+    }
+  }, [days, meals]);
 
   const generatePlan = async () => {
     setLoading(true);
 
-    const selectedDays = JSON.parse(localStorage.getItem('forkcast_days') || '[]');
-    const selectedMeals = JSON.parse(localStorage.getItem('forkcast_meals') || '[]');
+    const { data: recipes, error } = await supabase.from('recipes').select('*');
+    if (error) {
+      alert('Fehler beim Laden der Rezepte');
+      console.error(error);
+      return;
+    }
 
-    console.log("Tage:", selectedDays);
-    console.log("Mahlzeiten:", selectedMeals);
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
-
-    await supabase.from('mealplans').delete().eq('user_id', user.id);
-
-    const { data: allRecipes, error } = await supabase
-      .from('recipes')
-      .select('*')
-      .eq('user_id', user.id);
-
-    console.log("Alle Rezepte:", allRecipes);
-
-    if (error || !allRecipes) return;
-
-    const planEntries = [];
-
-    for (const day of selectedDays) {
-      for (const meal of selectedMeals) {
-        const matching = allRecipes.filter((r) => r.meal_types?.includes(meal));
-        if (matching.length === 0) continue;
-
-        const recipe = matching[Math.floor(Math.random() * matching.length)];
-
-        planEntries.push({
-          user_id: user.id,
-          day,
-          meal_type: meal,
-          recipe_id: recipe.id,
-          recipes: recipe,
-        });
+    const newPlan: Plan = {};
+    for (const day of days) {
+      newPlan[day] = {};
+      for (const meal of meals) {
+        const matching = recipes?.filter((r) => r.meal_types?.includes(meal)) || [];
+        const random = matching[Math.floor(Math.random() * matching.length)] || null;
+        newPlan[day][meal] = random;
       }
     }
 
-    console.log("Plan wird gespeichert:", planEntries);
-
-    if (planEntries.length > 0) {
-      await supabase.from('mealplans').insert(
-        planEntries.map(({ recipes, ...entry }) => entry)
-      );
-
-      const { data: newPlan, error: insertError } = await supabase
-        .from('mealplans')
-        .select('*, recipes(*)')
-        .eq('user_id', user.id);
-
-      if (insertError) {
-        console.error("Fehler beim Abrufen nach dem Einfügen:", insertError);
-      } else {
-        setWeeklyPlan(newPlan);
-      }
-    }
-
+    setPlan(newPlan);
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadExistingPlan();
-  }, []);
-
   return (
-    <div className="plan-container">
-      <h2 className="plan-title">Dein Plan</h2>
+    <div className="plan-page">
+      <h2>Dein Wochenplan</h2>
 
-      <button onClick={generatePlan} disabled={loading} style={{ marginBottom: '2rem' }}>
-        {loading ? 'Wird generiert...' : 'Plan generieren'}
-      </button>
-
-      <div className="plan-grid">
-        {weeklyPlan.map((entry, index) => (
-          <div key={index} className="plan-card">
-            <h3>{entry.day} – {entry.meal_type}</h3>
-            <p>{entry.recipes?.title}</p>
-            {entry.recipes?.url && (
-              <a href={entry.recipes.url} target="_blank" rel="noopener noreferrer">
-                Zum Rezept
-              </a>
-            )}
+      {loading ? (
+        <p>Wird geladen...</p>
+      ) : (
+        <>
+          <button onClick={generatePlan}>Plan neu generieren</button>
+          <div className="plan-table">
+            {days.map((day) => (
+              <div key={day} className="plan-day">
+                <h3>{day}</h3>
+                <ul>
+                  {meals.map((meal) => {
+                    const recipe = plan[day]?.[meal];
+                    return (
+                      <li key={meal}>
+                        <strong>{meal}:</strong>{' '}
+                        {recipe ? (
+                          <>
+                            <a href={recipe.url} target="_blank" rel="noreferrer">
+                              {recipe.title}
+                            </a>{' '}
+                            <em>({recipe.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'})</em>
+                          </>
+                        ) : (
+                          <em>Keine passende Idee gefunden</em>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
     </div>
   );
 }

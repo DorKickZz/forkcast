@@ -6,6 +6,8 @@ import Onboarding from './pages/Onboarding';
 import Setup from './pages/Setup';
 import Plan from './pages/Plan';
 import PlanSetup from './pages/PlanSetup';
+import Datenschutz from './pages/Datenschutz';
+import Impressum from './pages/Impressum';
 
 export default function App() {
   return (
@@ -20,6 +22,8 @@ export default function App() {
           <Route path="/setup" element={<Setup />} />
           <Route path="/plan" element={<Plan />} />
           <Route path="/setup" element={<PlanSetup />} />
+          <Route path="/impressum" element={<Impressum />} />
+          <Route path="/datenschutz" element={<Datenschutz />} />
         </Route>
       </Routes>
     </BrowserRouter>
