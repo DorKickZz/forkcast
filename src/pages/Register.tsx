@@ -1,115 +1,73 @@
 // 📁 src/pages/Register.tsx
-import { useState } from "react";
-import { supabase } from "../lib/supabase";
-import { useNavigate } from "react-router-dom";
-import "./Register.css";
+import { useState } from 'react'
+import { supabase } from '../lib/supabase'
+import { useNavigate } from 'react-router-dom'
+import './Auth.css'
 
 export default function Register() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [isVegetarian, setIsVegetarian] = useState(true); // Default auf vegetarisch
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isVegetarian, setIsVegetarian] = useState(true)
+  const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
+    setError('')
 
-    if (!email.includes("@")) {
-      setError("Bitte gib eine gültige E-Mail-Adresse ein.");
-      return;
-    }
-
-    if (password !== repeatPassword) {
-      setError("Die Passwörter stimmen nicht überein.");
-      return;
-    }
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
-    });
+      options: {
+        data: {
+          prefers_veg: isVegetarian,
+        },
+      },
+    })
 
-    if (signUpError || !data.user) {
-      setError(signUpError?.message || "Unbekannter Fehler");
-      return;
+    if (error) {
+      setError(error.message)
+    } else {
+      navigate('/login')
     }
-
-    // Profil erweitern
-    const { error: profileError } = await supabase.from("profiles").upsert({
-      id: data.user.id,
-      is_vegetarian: isVegetarian,
-    });
-
-    if (profileError) {
-      setError("Fehler beim Speichern des Profils.");
-      return;
-    }
-
-    alert("Registrierung erfolgreich – du kannst dich jetzt einloggen.");
-    navigate("/login");
-  };
+  }
 
   return (
-    <div className="register-wrapper">
-      <div className="register-box">
-        <h2>Konto erstellen</h2>
-        <form onSubmit={handleRegister}>
-          <label>E-Mail</label>
+    <div className="auth-container">
+      <h2>Registrieren</h2>
+      <form onSubmit={handleRegister}>
+        <input
+          type="email"
+          placeholder="E-Mail"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Passwort"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <label className="veg-toggle">
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            type="checkbox"
+            checked={isVegetarian}
+            onChange={() => setIsVegetarian(!isVegetarian)}
           />
+          Standardmäßig vegetarisch?
+        </label>
 
-          <label>Passwort</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+        <button type="submit">Konto erstellen</button>
+        {error && <p className="error">{error}</p>}
+      </form>
 
-          <label>Passwort wiederholen</label>
-          <input
-            type="password"
-            value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
-            required
-          />
-
-          <div className="veg-options">
-            <label>Ernährungsstil:</label>
-            <label>
-              <input
-                type="radio"
-                name="veg"
-                checked={isVegetarian}
-                onChange={() => setIsVegetarian(true)}
-              />
-              Vegetarisch/Vegan
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="veg"
-                checked={!isVegetarian}
-                onChange={() => setIsVegetarian(false)}
-              />
-              Allesesser
-            </label>
-          </div>
-
-          {error && <p className="error">{error}</p>}
-
-          <button type="submit">Registrieren</button>
-        </form>
-
-        <p className="switch">
-          Bereits ein Konto? <a href="/login">Hier einloggen</a>
-        </p>
-      </div>
+      <p className="auth-link">
+        Schon registriert? <a href="/login">Hier einloggen</a>
+      </p>
     </div>
-  );
+  )
 }

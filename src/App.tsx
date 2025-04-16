@@ -9,6 +9,8 @@ import Plan from './pages/Plan';
 import Impressum from './pages/Impressum';
 import Datenschutz from './pages/Datenschutz';
 import Layout from './components/Layout';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import './index.css';
 
 function App() {
@@ -63,6 +65,9 @@ function App() {
             </Layout>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/reset-password" element={<ResetPassword />} />
+
       </Routes>
     </Router>
   );
