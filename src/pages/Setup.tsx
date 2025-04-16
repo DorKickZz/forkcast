@@ -93,15 +93,17 @@ export default function Setup() {
     <div className="setup-wrapper">
       <h2>🔗 Rezept hinzufügen</h2>
       <form className="recipe-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Rezept-Link"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-        />
-        <button type="button" onClick={fetchTitleFromUrl} disabled={loading}>
-          {loading ? 'Lädt...' : 'Titel laden'}
-        </button>
+        <div className="row">
+          <input
+            type="text"
+            placeholder="Rezept-Link"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <button type="button" onClick={fetchTitleFromUrl} disabled={loading}>
+            {loading ? 'Lädt...' : 'Titel laden'}
+          </button>
+        </div>
 
         <input
           type="text"
