@@ -1,147 +1,130 @@
 // 📁 src/pages/Setup.tsx
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
-import "./Setup.css";
+import { useEffect, useState } from 'react'
+import { supabase } from '../lib/supabase'
+import './Setup.css'
 
 export default function Setup() {
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [isVegetarian, setIsVegetarian] = useState(false);
-  const [mealTypes, setMealTypes] = useState<string[]>([]);
-  const [recipes, setRecipes] = useState<any[]>([]);
-  const [defaultVeggie, setDefaultVeggie] = useState(false);
+  const [title, setTitle] = useState('')
+  const [url, setUrl] = useState('')
+  const [isVegetarian, setIsVegetarian] = useState(false)
+  const [mealTypes, setMealTypes] = useState<string[]>([])
+  const [recipes, setRecipes] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
 
-  const fetchDefaultVeggie = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  const mealOptions = ['Frühstück', 'Mittag', 'Abend']
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("is_vegetarian")
-      .eq("id", user.id)
-      .single();
-
-    if (!error && data?.is_vegetarian !== undefined) {
-      setIsVegetarian(data.is_vegetarian);
-      setDefaultVeggie(data.is_vegetarian);
-    }
-  };
+  useEffect(() => {
+    fetchRecipes()
+  }, [])
 
   const fetchRecipes = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
     const { data, error } = await supabase
-      .from("recipes")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .from('recipes')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
 
     if (!error && data) {
-      setRecipes(data);
+      setRecipes(data)
     }
-  };
+  }
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setMealTypes((prev) =>
-      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]
-    );
-  };
-
-  const fetchTitle = async () => {
-    if (!url) return alert("Bitte gib einen Link ein.");
+  const fetchTitleFromUrl = async () => {
+    if (!url) return
+    setLoading(true)
     try {
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-      const data = await res.json();
-      const doc = new DOMParser().parseFromString(data.contents, "text/html");
-      const fetchedTitle = doc.querySelector("title")?.textContent || "";
-      setTitle(fetchedTitle);
-    } catch {
-      alert("Titel konnte nicht geladen werden.");
+      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+      const data = await res.json()
+      const doc = new DOMParser().parseFromString(data.contents, 'text/html')
+      const pageTitle = doc.querySelector('title')?.textContent || ''
+      setTitle(pageTitle)
+    } catch (e) {
+      alert('Kein Titel gefunden – bitte manuell eingeben.')
     }
-  };
+    setLoading(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-      alert("Fehler beim Abrufen des Benutzers.");
-      return;
+    e.preventDefault()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      alert('Nicht eingeloggt!')
+      return
     }
 
-    const { error } = await supabase.from("recipes").insert({
+    const { error } = await supabase.from('recipes').insert({
       title,
       url,
       is_vegetarian: isVegetarian,
       meal_types: mealTypes,
-      user_id: user.id,
-    });
+      user_id: user.id
+    })
 
     if (error) {
-      alert("Fehler beim Speichern des Rezepts.");
+      alert('Fehler beim Speichern!')
     } else {
-      alert("Rezept gespeichert!");
-      setTitle("");
-      setUrl("");
-      setIsVegetarian(defaultVeggie);
-      setMealTypes([]);
-      fetchRecipes();
+      setTitle('')
+      setUrl('')
+      setIsVegetarian(false)
+      setMealTypes([])
+      fetchRecipes()
     }
-  };
+  }
+
+  const toggleMeal = (meal: string) => {
+    setMealTypes((prev) =>
+      prev.includes(meal) ? prev.filter((m) => m !== meal) : [...prev, meal]
+    )
+  }
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("recipes").delete().eq("id", id);
+    const { error } = await supabase.from('recipes').delete().eq('id', id)
     if (!error) {
-      setRecipes((prev) => prev.filter((r) => r.id !== id));
+      setRecipes((prev) => prev.filter((r) => r.id !== id))
     } else {
-      alert("Fehler beim Löschen.");
+      alert('Fehler beim Löschen.')
     }
-  };
-
-  useEffect(() => {
-    fetchDefaultVeggie();
-    fetchRecipes();
-  }, []);
+  }
 
   return (
-    <div className="setup-container">
-      <h2>Neues Rezept hinzufügen</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Rezept-Link:</label>
-        <div className="link-input">
-          <input
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://..."
-            required
-          />
-          <button type="button" onClick={fetchTitle}>Titel laden</button>
-        </div>
-
-        <label>Titel:</label>
+    <div className="setup-wrapper">
+      <h2>🔗 Rezept hinzufügen</h2>
+      <form className="recipe-form" onSubmit={handleSubmit}>
         <input
+          type="text"
+          placeholder="Rezept-Link"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+        />
+        <button type="button" onClick={fetchTitleFromUrl} disabled={loading}>
+          {loading ? 'Lädt...' : 'Titel laden'}
+        </button>
+
+        <input
+          type="text"
+          placeholder="Rezept-Titel"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          required
         />
 
-        <label>Mahlzeiten:</label>
-        <div className="checkbox-group">
-          {["Frühstück", "Mittag", "Abend"].map((m) => (
-            <label key={m}>
+        <div className="checkbox-row">
+          {mealOptions.map((meal) => (
+            <label key={meal}>
               <input
                 type="checkbox"
-                value={m}
-                checked={mealTypes.includes(m)}
-                onChange={handleCheckboxChange}
+                value={meal}
+                checked={mealTypes.includes(meal)}
+                onChange={() => toggleMeal(meal)}
               />
-              {m}
+              {meal}
             </label>
           ))}
         </div>
 
-        <label>
+        <label className="veg-check">
           <input
             type="checkbox"
             checked={isVegetarian}
@@ -150,25 +133,20 @@ export default function Setup() {
           Vegetarisch
         </label>
 
-        <button type="submit">Rezept speichern</button>
+        <button type="submit">Speichern</button>
       </form>
 
-      <h3>Deine Rezepte</h3>
-      <ul className="recipe-list">
-        {recipes.map((recipe) => (
-          <li key={recipe.id}>
-            <strong>{recipe.title}</strong><br />
-            <a href={recipe.url} target="_blank" rel="noopener noreferrer">
-              {recipe.url}
-            </a><br />
-            <em>
-              {recipe.is_vegetarian ? "Vegetarisch" : "Nicht vegetarisch"} –{" "}
-              {recipe.meal_types?.join(", ")}
-            </em><br />
-            <button onClick={() => handleDelete(recipe.id)}>Löschen</button>
-          </li>
+      <h3>📚 Deine Rezepte</h3>
+      <div className="recipe-list">
+        {recipes.map((r) => (
+          <div className="recipe-card" key={r.id}>
+            <h4>{r.title}</h4>
+            <p><a href={r.url} target="_blank" rel="noreferrer">Link öffnen</a></p>
+            <small>{r.meal_types.join(', ')} – {r.is_vegetarian ? 'Vegetarisch' : 'Mit Fleisch'}</small>
+            <button onClick={() => handleDelete(r.id)}>🗑️ Löschen</button>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
-  );
+  )
 }
